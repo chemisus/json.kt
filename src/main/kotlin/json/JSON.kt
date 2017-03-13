@@ -200,7 +200,11 @@ class JSON {
             return Reader(json).read()
         }
 
-        fun stringify(value: Any?): String {
+        fun stringify(value: Any?) = stringify(value, {
+            throw JsonException("could not stringify type of ${it.javaClass.name}")
+        })
+
+        fun stringify(value: Any?, writer: (Any) -> String): String {
             return when (value) {
                 null -> "null"
                 is Boolean, is Number -> value.toString()
@@ -224,10 +228,7 @@ class JSON {
                     }.joinToString(",")
                     "{$entries}"
                 }
-                else -> {
-                    val name = value.javaClass.name
-                    throw JsonException("could not stringify type of $name")
-                }
+                else -> writer(value)
             }
         }
     }
